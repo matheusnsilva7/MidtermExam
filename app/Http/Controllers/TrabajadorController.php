@@ -40,7 +40,7 @@ class TrabajadorController extends Controller
      */
     public function show(string $id)
     {
-        $trabajador = Trabajador::with('comments.user', "user")->findOrFail($id);
+        $trabajador = Trabajador::where('idtrabajador', $id)->firstOrFail();
         return $trabajador;
     }
 
@@ -57,17 +57,13 @@ class TrabajadorController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $trabajador = Trabajador::findOrFail($id);
-
+        $trabajador = Trabajador::where('idtrabajador', $id);
+        
         $data = $request->all();
-
-        if ($request->password) {
-            $data["password"] = bcrypt($request->password);
-        }
 
         $trabajador->update($data);
 
-        return $trabajador;
+        return response()->json(['message' => 'Trabajador updated successfully']);
     }
 
     /**
@@ -75,7 +71,7 @@ class TrabajadorController extends Controller
      */
     public function destroy(string $id)
     {
-        $trabajador = Trabajador::findOrFail($id);
+        $trabajador = Trabajador::where('idtrabajador', $id);
         $trabajador->delete();
 
         return response()->json([], 204);

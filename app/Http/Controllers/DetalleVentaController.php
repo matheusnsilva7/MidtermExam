@@ -40,7 +40,7 @@ class DetalleVentaController extends Controller
      */
     public function show(string $id)
     {
-        $detalleVenta = DetalleVenta::with('comments.user', "user")->findOrFail($id);
+        $detalleVenta = DetalleVenta::where('iddetalle_venta', $id)->firstOrFail();
         return $detalleVenta;
     }
 
@@ -57,17 +57,13 @@ class DetalleVentaController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $detalleVenta = DetalleVenta::findOrFail($id);
+        $detalleVenta = DetalleVenta::where('iddetalle_venta', $id);
 
         $data = $request->all();
 
-        if ($request->password) {
-            $data["password"] = bcrypt($request->password);
-        }
-
         $detalleVenta->update($data);
 
-        return $detalleVenta;
+        return response()->json(['message' => 'Trabajador updated successfully']);
     }
 
     /**
@@ -75,7 +71,7 @@ class DetalleVentaController extends Controller
      */
     public function destroy(string $id)
     {
-        $detalleVenta = DetalleVenta::findOrFail($id);
+        $detalleVenta = DetalleVenta::where('iddetalle_venta', $id);
         $detalleVenta->delete();
 
         return response()->json([], 204);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Articulo;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class ArticuloController extends Controller
@@ -40,8 +41,13 @@ class ArticuloController extends Controller
      */
     public function show(string $id)
     {
-        $articulo = Articulo::with('comments.user', "user")->findOrFail($id);
-        return $articulo;
+        try {
+            $articulo = Articulo::where('idarticulo', $id)->firstOrFail();
+            return $articulo;
+        } catch (ModelNotFoundException $e) {
+
+            return response()->json(['message' => 'Articulo not found'], 404);
+        }
     }
 
     /**
@@ -57,17 +63,13 @@ class ArticuloController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $articulo = Articulo::findOrFail($id);
+        $articulo = Articulo::where("idarticulo", $id);
 
         $data = $request->all();
 
-        if ($request->password) {
-            $data["password"] = bcrypt($request->password);
-        }
-
         $articulo->update($data);
 
-        return $articulo;
+        return response()->json(['message' => 'Trabajador updated successfully']);
     }
 
     /**
@@ -75,7 +77,7 @@ class ArticuloController extends Controller
      */
     public function destroy(string $id)
     {
-        $articulo = Articulo::findOrFail($id);
+        $articulo = Articulo::where("idarticulo", $id);
         $articulo->delete();
 
         return response()->json([], 204);

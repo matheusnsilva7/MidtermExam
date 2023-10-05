@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cliente;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class ClienteController extends Controller
@@ -40,7 +41,7 @@ class ClienteController extends Controller
      */
     public function show(string $id)
     {
-        $cliente = Cliente::with('comments.user', "user")->findOrFail($id);
+        $cliente = Cliente::where('idcliente', $id)->firstOrFail();
         return $cliente;
     }
 
@@ -57,17 +58,17 @@ class ClienteController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $cliente = Cliente::findOrFail($id);
+        try {
+            $cliente = Cliente::where('idcliente', $id);
 
-        $data = $request->all();
+            $data = $request->all();
 
-        if ($request->password) {
-            $data["password"] = bcrypt($request->password);
+            $cliente->update($data);
+
+            return response()->json(['message' => 'Trabajador updated successfully']);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Cliente not found'], 404);
         }
-
-        $cliente->update($data);
-
-        return $cliente;
     }
 
     /**
@@ -75,7 +76,7 @@ class ClienteController extends Controller
      */
     public function destroy(string $id)
     {
-        $cliente = Cliente::findOrFail($id);
+        $cliente = Cliente::where('idcliente', $id);
         $cliente->delete();
 
         return response()->json([], 204);

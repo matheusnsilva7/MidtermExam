@@ -40,7 +40,7 @@ class DetalleIngresoController extends Controller
      */
     public function show(string $id)
     {
-        $detalleIngreso = DetalleIngreso::with('comments.user', "user")->findOrFail($id);
+        $detalleIngreso = DetalleIngreso::where('iddetalle_ingreso', $id)->firstOrFail();
         return $detalleIngreso;
     }
 
@@ -57,17 +57,13 @@ class DetalleIngresoController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $detalleIngreso = DetalleIngreso::findOrFail($id);
+        $detalleIngreso = DetalleIngreso::where('iddetalle_ingreso', $id);
 
         $data = $request->all();
 
-        if ($request->password) {
-            $data["password"] = bcrypt($request->password);
-        }
-
         $detalleIngreso->update($data);
 
-        return $detalleIngreso;
+        return response()->json(['message' => 'Trabajador updated successfully']);
     }
 
     /**
@@ -75,7 +71,7 @@ class DetalleIngresoController extends Controller
      */
     public function destroy(string $id)
     {
-        $detalleIngreso = DetalleIngreso::findOrFail($id);
+        $detalleIngreso = DetalleIngreso::where('iddetalle_ingreso', $id);
         $detalleIngreso->delete();
 
         return response()->json([], 204);

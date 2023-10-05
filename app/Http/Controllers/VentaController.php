@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Venta;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class VentaController extends Controller
@@ -40,9 +41,10 @@ class VentaController extends Controller
      */
     public function show(string $id)
     {
-        $venta = Venta::with('comments.user', "user")->findOrFail($id);
+        $venta = Venta::where('idventa', $id)->firstOrFail();
         return $venta;
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -57,17 +59,13 @@ class VentaController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $venta = Venta::findOrFail($id);
+        $venta = Venta::where('idventa', $id);
 
         $data = $request->all();
 
-        if ($request->password) {
-            $data["password"] = bcrypt($request->password);
-        }
-
         $venta->update($data);
 
-        return $venta;
+        return response()->json(['message' => 'Trabajador updated successfully']);
     }
 
     /**
@@ -75,9 +73,13 @@ class VentaController extends Controller
      */
     public function destroy(string $id)
     {
-        $venta = Venta::findOrFail($id);
-        $venta->delete();
+        try {
+            $venta = Venta::where('idventa', $id);
+            $venta->delete();
 
-        return response()->json([], 204);
+            return response()->json([], 204);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['message' => 'Venta not found'], 404);
+        }
     }
 }
